@@ -10,7 +10,6 @@
 ## 2. RUIDs are designed to be faster to generate by having a simpler structure.
 ## An example of what an RUID might look like can be found below:
 ## 2c5b-94b1-35ad49bb-b1188e8f-c24abf80
-@tool
 class_name RUID
 extends Resource
 
@@ -54,7 +53,9 @@ static func random() -> RUID:
 	return ruid
 
 
-static func v4(object_type: String) -> RUID:
+static func v4(object_type: Variant) -> RUID:
+	if not is_instance_of(object_type, TYPE_STRING):
+		object_type = object_type.get_script().get_global_name()
 	var ruid: RUID = random()
 	# Save the RUID version to the RUID metadata.
 	ruid.set_version(4)
@@ -76,6 +77,14 @@ func get_version() -> int:
 
 func hash() -> int:
 	return _get_hash_code()
+
+
+func is_nil() -> bool:
+	return equals(RUID.NIL)
+
+
+func is_omni() -> bool:
+	return equals(RUID.OMNI)
 
 
 func randomize() -> void:
@@ -110,7 +119,7 @@ func to_json() -> String:
 
 
 ## Convert this RUID into a string.
-## Example result: `"9-c5b-94b1-35ad49bb-b1188e8f-c24abf80"`
+## Example result: `"9c5b-94b1-35ad49bb-b1188e8f-c24abf80"`
 func to_string() -> String:
 	return (
 		_to_string_split(metadata) +
