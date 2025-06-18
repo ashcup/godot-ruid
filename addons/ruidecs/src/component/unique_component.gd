@@ -16,11 +16,19 @@ var is_attached: bool : get = _get_is_attached
 var _is_unique_component_attached: bool = false
 
 
+static func find_component(ruid: RUID) -> UniqueComponent:
+	return find(ruid) as UniqueComponent
+
+
 func _application_crash(event: UniqueComponentEvent) -> void:
 	pass
 
 
 func _attach(event: UniqueComponentEvent) -> void:
+	pass
+
+
+func _new(event: UniqueComponentEvent) -> void:
 	pass
 
 
