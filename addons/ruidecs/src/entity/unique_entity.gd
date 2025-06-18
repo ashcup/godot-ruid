@@ -11,10 +11,13 @@ extends UniqueResource
 @export var components: Dictionary[String, UniqueComponent]
 
 
+static func find_entity(ruid: RUID) -> UniqueEntity:
+	return find(ruid) as UniqueEntity
+
+
 func add_component(component: UniqueComponent) -> void:
 	var type_name: String = component.get_script().get_global_name()
 	# Add the component to this entity.
-	print("Adding component %s" % type_name)
 	components[type_name] = component
 	# Emit the associated event.
 	var event: UniqueComponentEvent = UniqueComponentEvent.new()
