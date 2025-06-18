@@ -8,7 +8,10 @@ class_name UniqueEntity
 extends UniqueResource
 
 
-@export var components: Dictionary[String, UniqueComponent]
+@export var components: Array[UniqueComponent]
+
+
+var _component_lookup_table: Dictionary[String, UniqueComponent]
 
 
 static func find_entity(ruid: RUID) -> UniqueEntity:
@@ -18,7 +21,8 @@ static func find_entity(ruid: RUID) -> UniqueEntity:
 func add_component(component: UniqueComponent) -> void:
 	var type_name: String = component.get_script().get_global_name()
 	# Add the component to this entity.
-	components[type_name] = component
+	components.append(component)
+	_component_lookup_table[type_name] = component
 	# Emit the associated event.
 	var event: UniqueComponentEvent = UniqueComponentEvent.new()
 	event.component = component
@@ -28,27 +32,27 @@ func add_component(component: UniqueComponent) -> void:
 
 
 func get_component(component_name: String) -> UniqueComponent:
-	if component_name not in components:
+	if component_name not in _component_lookup_table:
 		return null
-	return components[component_name]
+	return _component_lookup_table[component_name]
 
 
 func find_components_by(pattern: Callable, query: Variant = null) -> Array[UniqueComponent]:
 	var results: Array[UniqueComponent] = []
-	for component: UniqueComponent in components.values():
+	for component: UniqueComponent in components:
 		if pattern.call(component, query):
 			results.append(component)
 	return results
 
 
 func remove_all_components() -> void:
-	for component_name in components:
+	for component_name in _component_lookup_table:
 		remove_component(component_name)
 
 
 func remove_component(component_name: String) -> void:
 	# Get the component to remove.
-	var component: UniqueComponent = components[component_name]
+	var component: UniqueComponent = _component_lookup_table[component_name]
 	# Emit the associated event.
 	var event: UniqueComponentEvent = UniqueComponentEvent.new()
 	event.component = component
@@ -56,7 +60,8 @@ func remove_component(component_name: String) -> void:
 	component._detach(event)
 	component._set_entity(null)
 	# Remove the component from this entity.
-	components.erase(component_name)
+	components.remove_at(components.find(component))
+	_component_lookup_table.erase(component_name)
 
 
 func remove_component_by_reference(component: UniqueComponent) -> void:
@@ -67,7 +72,7 @@ func _process(delta: float, node: Node) -> void:
 	var event_prototype: UniqueComponentProcessEvent = UniqueComponentProcessEvent.new()
 	event_prototype.delta = delta
 	event_prototype.entity = self
-	for component: UniqueComponent in components.values():
+	for component: UniqueComponent in _component_lookup_table.values():
 		var event: UniqueComponentProcessEvent = event_prototype.clone()
 		event.component = component
 		component._process(event)
@@ -77,7 +82,7 @@ func _physics_process(delta: float, node: Node) -> void:
 	var event_prototype: UniqueComponentProcessEvent = UniqueComponentProcessEvent.new()
 	event_prototype.delta = delta
 	event_prototype.entity = self
-	for component: UniqueComponent in components.values():
+	for component: UniqueComponent in _component_lookup_table.values():
 		var event: UniqueComponentProcessEvent = event_prototype.clone()
 		event.component = component
 		component._physics_process(event)
