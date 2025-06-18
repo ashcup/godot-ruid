@@ -11,7 +11,7 @@ class_name YourAwesomeClass
 extends Node
 
 
-# Create a new entity.
+# Create a new RUID.
 var ruid: RUID = RUID.NIL
 
 
