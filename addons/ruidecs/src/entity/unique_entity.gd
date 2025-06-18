@@ -19,10 +19,9 @@ static func find_entity(ruid: RUID) -> UniqueEntity:
 
 
 func add_component(component: UniqueComponent) -> void:
-	var type_name: String = component.get_script().get_global_name()
 	# Add the component to this entity.
 	components.append(component)
-	_component_lookup_table[type_name] = component
+	_register_component(component)
 	# Emit the associated event.
 	var event: UniqueComponentEvent = UniqueComponentEvent.new()
 	event.component = component
@@ -61,11 +60,11 @@ func remove_component(component_name: String) -> void:
 	component._set_entity(null)
 	# Remove the component from this entity.
 	components.remove_at(components.find(component))
-	_component_lookup_table.erase(component_name)
+	_unregister_component(component)
 
 
 func remove_component_by_reference(component: UniqueComponent) -> void:
-	remove_component(component.type_name)
+	remove_component(component.component_name)
 
 
 func _process(delta: float, node: Node) -> void:
@@ -91,3 +90,20 @@ func _physics_process(delta: float, node: Node) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
 		remove_all_components()
+
+
+# Internal
+
+
+func _build_component_lookup_table() -> void:
+	_component_lookup_table = {}
+	for component in components:
+		_register_component(component)
+
+
+func _register_component(component: UniqueComponent) -> void:
+	_component_lookup_table[component.component_name] = component
+
+
+func _unregister_component(component: UniqueComponent) -> void:
+	_component_lookup_table.erase(component.component_name)
