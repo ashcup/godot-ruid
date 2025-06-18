@@ -67,6 +67,10 @@ func remove_component_by_reference(component: UniqueComponent) -> void:
 	remove_component(component.component_name)
 
 
+func _init() -> void:
+	_init_component_lookup_table()
+
+
 func _process(delta: float, node: Node) -> void:
 	var event_prototype: UniqueComponentProcessEvent = UniqueComponentProcessEvent.new()
 	event_prototype.delta = delta
@@ -96,9 +100,14 @@ func _notification(what: int) -> void:
 
 
 func _build_component_lookup_table() -> void:
-	_component_lookup_table = {}
+	_component_lookup_table.clear()
 	for component in components:
 		_register_component(component)
+
+
+func _init_component_lookup_table() -> void:
+	if _component_lookup_table == null:
+		_component_lookup_table = {}
 
 
 func _register_component(component: UniqueComponent) -> void:
