@@ -12,6 +12,8 @@ var entity: UniqueEntity = null
 
 var is_attached: bool : get = _get_is_attached
 
+var component_name: String : get = _get_component_name
+
 
 var _is_unique_component_attached: bool = false
 
@@ -64,6 +66,10 @@ func _notification(what: int) -> void:
 
 
 # Internal
+
+
+func _get_component_name() -> String:
+	return self.get_script().get_global_name()
 
 
 func _get_is_attached() -> bool:
